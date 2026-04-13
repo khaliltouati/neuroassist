@@ -1,0 +1,56 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: neuroassist
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./apps/api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://postgres:password@db:5432/neuroassist
+      JWT_SECRET: change-me-to-a-long-random-string
+      UPLOAD_DIR: uploads
+      HEATMAP_DIR: heatmaps
+    volumes:
+      - api_uploads:/app/uploads
+      - api_heatmaps:/app/heatmaps
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./apps/web
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    depends_on:
+      - api
+
+volumes:
+  pgdata:
+  api_uploads:
+  api_heatmaps:

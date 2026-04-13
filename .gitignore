@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Environment
+.env
+.env.local
+apps/api/.env
+apps/web/.env.local
+
+# Build
+.next/
+apps/web/.next/
+apps/web/out/
+
+# AI Model weights
+apps/api/ai_model/weights/
+
+# Uploads
+apps/api/uploads/
+apps/api/heatmaps/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

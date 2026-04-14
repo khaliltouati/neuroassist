@@ -2,7 +2,7 @@
 
 > **Disclaimer:** This project is for educational and research purposes only and is not intended for medical diagnosis.
 
-NeuroAssist AI is a clinical MRI decision-support web application. Doctors upload MRI scans, run AI-powered analysis, manage patients, and provide feedback to improve the model over time.
+NeuroAssist AI is a clinical MRI decision-support platform with a **web dashboard** and a **mobile companion app**. Doctors upload MRI scans, run AI-powered analysis, manage patients, and provide feedback to improve the model over time.
 
 This is a **decision-support tool** — not a medical diagnosis system.
 
@@ -12,17 +12,21 @@ This is a **decision-support tool** — not a medical diagnosis system.
 
 ```
 ┌─────────────┐     ┌──────────────┐     ┌────────────────┐
-│  Next.js UI  │────▶│  FastAPI      │────▶│  PostgreSQL    │
-│  (React/TS)  │◀────│  Backend      │◀────│  Database      │
-└─────────────┘     └──────┬───────┘     └────────────────┘
-                           │
+│  Next.js UI  │────▶│              │────▶│  PostgreSQL    │
+│  (React/TS)  │◀────│   FastAPI    │◀────│  Database      │
+└─────────────┘     │   Backend    │     └────────────────┘
+┌─────────────┐     │              │
+│  Flutter App │────▶│              │
+│  (Dart)      │◀────└──────┬───────┘
+└─────────────┘            │
                     ┌──────▼───────┐
                     │  TensorFlow  │
                     │  AI Engine   │
                     └──────────────┘
 ```
 
-- **Frontend** — Next.js 14+ (App Router), TailwindCSS, TypeScript, Chart.js
+- **Web Frontend** — Next.js 14+ (App Router), TailwindCSS, TypeScript, Chart.js
+- **Mobile App** — Flutter (Dart), Material 3, Provider state management
 - **Backend** — Python FastAPI, JWT auth, bcrypt hashing
 - **AI** — TensorFlow / Keras 3, Grad-CAM heatmaps
 - **Database** — PostgreSQL
@@ -42,6 +46,15 @@ neuroassist/
 │   │   ├── services/  # Business logic
 │   │   ├── main.py
 │   │   └── config.py
+│   ├── mobile/        # Flutter mobile app
+│   │   ├── lib/
+│   │   │   ├── core/       # Theme, constants
+│   │   │   ├── models/     # Dart data models
+│   │   │   ├── services/   # API client, auth provider
+│   │   │   ├── features/   # Screens (auth, dashboard, patients, scans)
+│   │   │   ├── widgets/    # Reusable widgets
+│   │   │   └── main.dart
+│   │   └── pubspec.yaml
 │   └── web/           # Next.js frontend
 │       ├── src/
 │       │   ├── app/        # App Router pages
@@ -116,7 +129,22 @@ cp .env.example .env.local   # Edit API URL
 npm run dev
 ```
 
-### 4. Docker (Alternative)
+### 4. Mobile App
+
+```bash
+cd apps/mobile
+flutter pub get
+
+# For physical device via USB:
+adb reverse tcp:8001 tcp:8001
+flutter run
+
+# For Android emulator (uses 10.0.2.2 automatically):
+# Edit lib/core/constants.dart → baseUrl = 'http://10.0.2.2:8001'
+flutter run
+```
+
+### 5. Docker (Alternative)
 
 ```bash
 docker-compose up --build
